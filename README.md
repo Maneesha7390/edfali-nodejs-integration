@@ -1,11 +1,55 @@
-# edfali-nodejs-integration
-Simple and secure Node.js integration for Edfali bank payment service — wraps legacy SOAP APIs (DoPTrans and OnlineConfTrans) into clean JSON endpoints.
+# Edfali Node + Swagger Starter
 
-This repository provides a ready-to-use Node.js service for integrating the Edfali payment web service.
-It hides SOAP complexity and exposes simple REST endpoints for initiating and confirming payments.
+A minimal Node.js project to integrate with the Edfali SOAP `.asmx` API using:
+- **axios** + **xml2js** for SOAP requests
+- **Express** for REST endpoints
+- **Swagger UI** for interactive API docs at `/docs`
 
-Initiate Payment (DoPTrans) — starts a payment and returns a session ID.
-Confirm Payment (OnlineConfTrans) — confirms the payment with the OTP sent to the customer.
-Handles bank-specific error codes (PW1, PW, ACC, LIMIT, BAL).
-Validates inputs (merchant number, customer number, amount).
-Keeps sensitive credentials safe in .env.
+> ⚠️ The sample endpoint is HTTP (not HTTPS). Because you'll send `Pin`/`PW`, use HTTPS or a private network/VPN in production.
+
+## Quick Start
+
+```bash
+# 1) Extract and enter folder
+npm install
+
+# 2) Create .env
+cp .env.example .env
+# Edit EDFALI_APP_PASSWORD, and if you have an HTTPS endpoint, change EDFALI_BASE_URL
+
+# 3) Run
+npm start
+# => API on http://localhost:3000
+# => Swagger UI on http://localhost:3000/docs
+```
+
+## Endpoints
+
+- `POST /payments/initiate` — Initiate payment (maps to SOAP `DoPTrans`)
+- `POST /payments/confirm` — Confirm payment (maps to SOAP `OnlineConfTrans`)
+
+See `docs/openapi.yaml` for request/response schemas.
+
+## Project Structure
+
+```
+src/
+  edfali/
+    client.js        # EdfaliClient (axios + xml2js)
+    envelopes.js     # SOAP 1.1 envelopes
+    errors.js        # Custom error classes
+    parse.js         # SOAP parsing + provider string decoding
+  routes/
+    payments.js      # Express routes
+  validation/
+    schemas.js       # Joi schemas
+  server.js          # Express bootstrap + Swagger UI
+docs/
+  openapi.yaml
+.env.example
+package.json
+```
+
+## Notes
+- Adjust `decodeProviderString` in `src/edfali/parse.js` to your provider's exact result format.
+- Never log full PIN/PW in production.
