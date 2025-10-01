@@ -1,0 +1,22 @@
+{
+  "name": "edfali-node-swagger",
+  "version": "1.0.0",
+  "description": "Node.js payment integration for Edfali (SOAP .asmx) with Swagger UI",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "lint": "echo \"(add ESLint if needed)\"",
+    "docs:check": "node -e \"console.log('OpenAPI at docs/openapi.yaml')\""
+  },
+  "dependencies": {
+    "axios": "^1.7.4",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "joi": "^17.13.3",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0",
+    "xml2js": "^0.6.2"
+  }
+}

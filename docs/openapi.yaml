@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: Edfali Payments API
+  version: 1.0.1
+  description: REST facade for Adfali SOAP (.asmx) DoPTrans & OnlineConfTrans
+servers:
+  - url: http://localhost:3000
+paths:
+  /payments/initiate:
+    post:
+      summary: Initiate a payment (DoPTrans)
+      tags: [payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateRequest'
+      responses:
+        '200':
+          description: Pending with sessionID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiateResponse'
+        '400': { description: Bad request }
+        '401': { description: Auth failed }
+        '404': { description: Not found }
+        '409': { description: Business conflict }
+        '502': { description: Upstream error }
+  /payments/confirm:
+    post:
+      summary: Confirm a payment (OnlineConfTrans)
+      tags: [payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmRequest'
+      responses:
+        '200':
+          description: Confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmResponse'
+        '400': { description: Bad request }
+        '401': { description: Auth failed }
+        '404': { description: Not found }
+        '409': { description: Business conflict }
+        '502': { description: Upstream error }
+components:
+  schemas:
+    InitiateRequest:
+      type: object
+      required: [Mobile, Pin, Cmobile, Amount]
+      properties:
+        Mobile:
+          type: string
+          description: Merchant phone (9 digits starting with 9) e.g. 9xxxxxxxx
+          example: "923456789"
+        Pin:
+          type: string
+          description: Merchant 4-digit PIN provided by bank (Step 1)
+          example: "1234"
+        Cmobile:
+          type: string
+          description: Customer mobile (+2189xxxxxxxx) or service number
+          examples:
+            libyan: { value: "+218912345678" }
+            service: { value: "1515" }
+        Amount:
+          type: number
+          format: float
+          example: 25.00
+    InitiateResponse:
+      type: object
+      properties:
+        status: { type: string, example: "PENDING" }
+        sessionID: { type: string, example: "abc123" }
+        provider: { type: string, example: "SESSION=abc123" }
+    ConfirmRequest:
+      type: object
+      required: [Mobile, Pin, sessionID]
+      properties:
+        Mobile:
+          type: string
+          description: Merchant phone (9 digits starting with 9)
+          example: "923456789"
+        Pin:
+          type: string
+          description: Customer 4-digit confirmation PIN (from SMS) (Step 2)
+          example: "4321"
+        sessionID:
+          type: string
+          description: Session ID returned from DoPTrans
+          example: "abc123"
+    ConfirmResponse:
+      type: object
+      properties:
+        status: { type: string, example: "SUCCESS" }
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        code: { type: string, nullable: true }
